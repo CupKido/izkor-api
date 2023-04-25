@@ -6,7 +6,7 @@ The API uses the government website as a source of information, and extract the 
 
 Feel free to use the server/wrapper for any of your needs, as long as it respects the fallen soldiers and their families.
 
-### Usage:
+## Usage:
 run -
 
     python main.py -p <port to use>
@@ -15,9 +15,9 @@ The default port is 3500.
 
 The server currently only has support for http.
 
-### Available endpoints:
+## Available endpoints:
 
-#### /GetHalalimByName
+### /GetHalalimByName
 ##### parameters
 * first_name - first name
 * last_name - last name
@@ -34,3 +34,18 @@ every element in the list includes:
 * year_of_fall
 * beit_kvarot (which cemetery)
 * cheil (which force)
+
+### /GetHalal
+##### Parameters:
+* id - id result from /GetHalalimByName endpoint (previous endpoint)
+
+return data about fallen Halal that includes:
+* id
+* name (full)
+* father (name)
+* mother (name)
+* date_of_fall
+* beit_kvarot (which cemetery)
+* cheil (which force)
+* about
+* picture_url
