@@ -57,7 +57,7 @@ class izkor_wrapper:
         page_res =  requests.get(halal_page_url)
 
         about_soup = BeautifulSoup(about_res.text, 'html.parser')
-        about_span = about_soup.find_all('span', {'class': 'innerText' })[0]
+        about_span = about_soup.find_all('div', {'id': 'myScrollContent' })[0].contents[1].contents[5]
         about_text = about_span.text
         picture_url = instance.izkor_url + about_soup.find_all('img', {'id': 'ctl00_ctl00_MainContent_MainContent_HalalImage'})[0].attrs['src']
 
