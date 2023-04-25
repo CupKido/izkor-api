@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import json
 from izkor_wrapper import izkor_wrapper
+import argparse
 app = Flask(__name__)
 
 @app.route('/GetHalalimByName', methods=['GET'])
@@ -17,7 +18,6 @@ def get_halalim_by_name():
         mimetype='application/json'
     )
     return response
-    #return halalim_jsons, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route('/GetHalal', methods=['GET'])
 def get_halal_by_id():
@@ -35,4 +35,10 @@ def get_halal_by_id():
     return response
 
 if __name__ == '__main__':
-    app.run(port=3500, debug=True)
+    port = 3500
+    parser = argparse.ArgumentParser(description='API server for israeli fallen soldiers')
+    parser.add_argument('-p','--port', type=int, help='what port to use')
+    args = parser.parse_args()
+    if args.port is not None:
+        port = args.port
+    app.run(port=port, debug=True)
