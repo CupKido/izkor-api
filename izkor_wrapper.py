@@ -30,11 +30,42 @@ class izkor_wrapper:
         '__VIEWSTATEGENERATOR': '',
         }   
         response = requests.post(url, data=data)
+        # with open('res.html', 'wb') as f:
+        #     f.write(response.content)
         soup = BeautifulSoup(response.text, 'html.parser')
-        halalim = filter(lambda x: 'class' in x.attrs and 'rtl' in x.attrs['class'] , soup.find_all('td'))
+        halalim_elems = filter(lambda x: 'id' in x.attrs and 'ctl00_ctl00_MainContent_MainContent_RadGridResult_ctl00__' == x.attrs['id'][:-1] , soup.find_all('tr'))
+        halalim = []
+        
+        for x in halalim_elems:
+            beit_kvarot = instance.clean_string( x.contents[1].string )
+            cheil = instance.clean_string( x.contents[2].string )
+            year_of_fall = instance.clean_string( x.contents[3].string )
+            parents = x.contents[4].string.split(' ו')
+            father = instance.clean_string( parents[1] )
+            mother = instance.clean_string( parents[0] )
+            first_name = instance.clean_string( x.contents[5].string )
+            last_name = instance.clean_string( x.contents[6].string )
+            id = instance.clean_string( x.contents[6].find('a').attrs['href'].split('id=')[1] )
+            halalim.append(halal_light(id, first_name, last_name, father, mother, year_of_fall, beit_kvarot, cheil))
+        return halalim
 
-class Halal:
-    def __init__(self, id, first_name, last_name, father, mother, year_of_fall, beit_kvarot):
+    def get_halal_by_id(instance, id):
+        about_halal_url = instance.izkor_url + 'HalalKorot.aspx?id=' + id
+        halal_page_url = instance.izkor_url + 'HalalView.aspx?id=' + id
+        
+
+    @classmethod
+    def clean_string(instance, text):
+        text_parts = text.replace('\n', '').replace('\r', '').split(' ')
+        final = []
+        for part in text_parts:
+            if part != '':
+                final.append(part)
+        return ' '.join(final)
+
+
+class halal_light:
+    def __init__(self, id, first_name, last_name, father, mother, year_of_fall, beit_kvarot, cheil):
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
@@ -42,9 +73,16 @@ class Halal:
         self.mother = mother
         self.year_of_fall = year_of_fall
         self.beit_kvarot = beit_kvarot
+        self.cheil = cheil
 
+    def __str__(self):
+        return f'{self.id} {self.first_name} {self.last_name} {self.father} {self.mother} {self.year_of_fall} {self.beit_kvarot} {self.cheil}'
+    
+    def get_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True)
+    
+    def get_dict(self):
+        return self.__dict__
 
-#izkor_wrapper.initialize()
-#izkor_wrapper.get_search_page()
-#print(izkor_wrapper.get_halal_by_name("יהודה גרינפלד"))
-izkor_wrapper.test('יהודה', 'גרינפלד')
+class halal(halal_light):
+    def __init__(self, id, first_name, last_name, father, mother, year_of_fall, beit_kvarot, cheil, about):
