@@ -7,7 +7,7 @@ def get_halalim_by_name():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
     halalim = izkor_wrapper.get_halalim_by_name(first_name, last_name)
-    halalim_jsons = list(map(lambda x: x.get_dict(), halalim))
+    halalim_jsons = list(map(lambda x: x.__dict__, halalim))
     return jsonify(halalim_jsons), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 @app.route('/GetHalal', methods=['GET'])
@@ -16,7 +16,7 @@ def get_halal_by_id():
     if id == '':
         return None, 404
     halal = izkor_wrapper.get_halal_by_id(id)
-    return jsonify(halal), 200, {'Content-Type': 'application/json; charset=utf-8'}
+    return jsonify(halal.__dict__), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 if __name__ == '__main__':
     app.run(port=3500, debug=True)
