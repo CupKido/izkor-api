@@ -120,6 +120,9 @@ class halal:
     def __str__(self):
         return f'{self.id} {self.name} {self.father} {self.mother} {self.date_of_fall} {self.beit_kvarot} {self.cheil} {self.about} {self.picture_url}'
         
+    @classmethod
+    def get_json(instance):
+        return json.dumps(instance, default=lambda o: o.__dict__, sort_keys=True)
 
     @classmethod
     def get_dict(instance):
