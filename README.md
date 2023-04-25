@@ -11,5 +11,6 @@ run -
 
     python main.py -p <port to use>
 
-the default port is 3500
-the server currently only has support for http.
+The default port is 3500.
+
+The server currently only has support for http.
