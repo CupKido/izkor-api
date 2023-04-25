@@ -8,8 +8,12 @@ app = Flask(__name__)
 def get_halalim_by_name():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
-    if first_name == '' and last_name == '':
-        return None, 404
+    if first_name == '' and last_name == '' or first_name is None and last_name is None:
+        return app.response_class(
+        response={},
+        status=404,
+        mimetype='application/json'
+    )
     halalim = izkor_wrapper.get_halalim_by_name(first_name, last_name)
     halalim_jsons = list(map(lambda x: x.__dict__, halalim))
     json_data = json.dumps(halalim_jsons)
@@ -24,8 +28,12 @@ def get_halalim_by_name():
 @app.route('/GetHalal', methods=['GET'])
 def get_halal_by_id():
     id = request.args.get('id')
-    if id == '':
-        return None, 404
+    if id == '' or id is None:
+        return app.response_class(
+        response={},
+        status=404,
+        mimetype='application/json'
+    )
     halal = izkor_wrapper.get_halal_by_id(id)
     json_data = json.dumps(halal.__dict__)
     decoded_data = json_data.encode('utf-8').decode('unicode_escape')
