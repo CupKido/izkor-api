@@ -8,7 +8,7 @@ Feel free to use the server/wrapper for any of your needs, as long as it respect
 
 ### usage:
 run -
-'''python main.py -p <port to use>'''
+      python main.py -p <port to use>
 
 the default port is 3500
 the server currently only has support for http.
