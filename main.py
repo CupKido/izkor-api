@@ -8,6 +8,8 @@ app = Flask(__name__)
 def get_halalim_by_name():
     first_name = request.args.get('first_name')
     last_name = request.args.get('last_name')
+    if first_name == '' and last_name == '':
+        return None, 404
     halalim = izkor_wrapper.get_halalim_by_name(first_name, last_name)
     halalim_jsons = list(map(lambda x: x.__dict__, halalim))
     json_data = json.dumps(halalim_jsons)
