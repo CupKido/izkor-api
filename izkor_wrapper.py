@@ -6,11 +6,11 @@ from selenium.webdriver.chrome.options import Options
 # This is the wrapper for the izkor website.
 
 class izkor_wrapper:
-    izkor_url = 'https://izkorcdn.azureedge.net/'
+    izkor_url = 'https://izkorcdn.azureedge.net'
 
     @classmethod
     def get_halalim_by_name(instance, first_name='', last_name='', father='', mother='', year_of_fall='', beit_kvarot = ''):
-        url = 'https://izkorcdn.azureedge.net/Search.aspx'
+        url = instance.izkor_url + '/Search.aspx'
         data = {
         'ctl00$ctl00$MainContent$MainContent$TextBoxLastname': last_name,
         'ctl00$ctl00$MainContent$MainContent$TextBoxQuick': first_name,
@@ -37,22 +37,40 @@ class izkor_wrapper:
         halalim = []
         
         for x in halalim_elems:
-            beit_kvarot = instance.clean_string( x.contents[1].string )
-            cheil = instance.clean_string( x.contents[2].string )
-            year_of_fall = instance.clean_string( x.contents[3].string )
-            parents = x.contents[4].string.split(' ו')
+            beit_kvarot = instance.clean_string( x.contents[1].text )
+            cheil = instance.clean_string( x.contents[2].text )
+            year_of_fall = instance.clean_string( x.contents[3].text )
+            parents = x.contents[4].text.split(' ו')
             father = instance.clean_string( parents[1] )
             mother = instance.clean_string( parents[0] )
-            first_name = instance.clean_string( x.contents[5].string )
-            last_name = instance.clean_string( x.contents[6].string )
+            first_name = instance.clean_string( x.contents[5].text )
+            last_name = instance.clean_string( x.contents[6].text )
             id = instance.clean_string( x.contents[6].find('a').attrs['href'].split('id=')[1] )
             halalim.append(halal_light(id, first_name, last_name, father, mother, year_of_fall, beit_kvarot, cheil))
         return halalim
 
+    @classmethod
     def get_halal_by_id(instance, id):
-        about_halal_url = instance.izkor_url + 'HalalKorot.aspx?id=' + id
-        halal_page_url = instance.izkor_url + 'HalalView.aspx?id=' + id
-        
+        about_halal_url = instance.izkor_url + '/HalalKorot.aspx?id=' + str(id)
+        halal_page_url = instance.izkor_url + '/HalalView.aspx?id=' + str(id)
+        about_res = requests.get(about_halal_url)
+        page_res =  requests.get(halal_page_url)
+
+        about_soup = BeautifulSoup(about_res.text, 'html.parser')
+        about_span = about_soup.find_all('span', {'class': 'innerText' })[0]
+        about_text = about_span.text
+        picture_url = instance.izkor_url + about_soup.find_all('img', {'id': 'ctl00_ctl00_MainContent_MainContent_HalalImage'})[0].attrs['src']
+
+        page_soup = BeautifulSoup(page_res.text, 'html.parser')
+        name = page_soup.find_all('span', {'id' : 'ctl00_ctl00_MainContent_MainContent_LabelName'})[0].text
+        parents = page_soup.find_all('span', {'id' : 'ctl00_ctl00_MainContent_MainContent_LabelParents'})[0].text[3:].split(' ו')
+        father = parents[1]
+        mother = parents[0]
+        date_of_fall = page_soup.find_all('span', {'id' : 'ctl00_ctl00_MainContent_MainContent_LabelDeathDate'})[0].text
+        cheil = page_soup.find_all('span', {'id' : 'ctl00_ctl00_MainContent_MainContent_LabelUnit'})[0].text
+        beit_kvarot = page_soup.find_all('span', {'id' : 'ctl00_ctl00_MainContent_MainContent_LabelKever'})[0].text
+        return halal(id, name, father, mother, date_of_fall, beit_kvarot, cheil, about_text, picture_url)
+
 
     @classmethod
     def clean_string(instance, text):
@@ -78,11 +96,31 @@ class halal_light:
     def __str__(self):
         return f'{self.id} {self.first_name} {self.last_name} {self.father} {self.mother} {self.year_of_fall} {self.beit_kvarot} {self.cheil}'
     
-    def get_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True)
+    @classmethod
+    def get_json(instance):
+        return json.dumps(instance, default=lambda o: o.__dict__, sort_keys=True)
     
-    def get_dict(self):
-        return self.__dict__
+    @classmethod
+    def get_dict(instance):
+        return instance.__dict__
 
-class halal(halal_light):
-    def __init__(self, id, first_name, last_name, father, mother, year_of_fall, beit_kvarot, cheil, about):
+class halal:
+    def __init__(self, id, name, father, mother, date_of_fall, beit_kvarot, cheil, about, picture_url):
+        self.id = id
+        self.name = name
+        self.father = father
+        self.mother = mother
+        self.date_of_fall = date_of_fall
+        self.beit_kvarot = beit_kvarot
+        self.cheil = cheil
+        self.about = about
+        self.picture_url = picture_url
+        
+    
+    def __str__(self):
+        return f'{self.id} {self.name} {self.father} {self.mother} {self.date_of_fall} {self.beit_kvarot} {self.cheil} {self.about} {self.picture_url}'
+        
+
+    @classmethod
+    def get_dict(instance):
+        return instance.__dict__

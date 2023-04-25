@@ -16,6 +16,7 @@ def get_halal_by_id():
     if id == '':
         return None, 404
     halal = izkor_wrapper.get_halal_by_id(id)
+    return jsonify(halal), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 if __name__ == '__main__':
     app.run(port=3500, debug=True)
