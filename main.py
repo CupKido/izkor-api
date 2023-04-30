@@ -51,4 +51,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.port is not None:
         port = args.port
-    app.run(port=port, debug=True)
+    app.run(port=port)
